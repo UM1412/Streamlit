@@ -92,7 +92,7 @@ def main():
         unsafe_allow_html=True
     )
 
-    st.markdown("<div class='title'>Avainishi</div>", unsafe_allow_html=True)
+    st.markdown("<div class='title'>Avinashi</div>", unsafe_allow_html=True)
     st.subheader("Your Study App")
 
     youtube_link = st.text_input("Enter YouTube Video ID:", value='', key='youtube_link')
