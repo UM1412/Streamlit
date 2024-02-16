@@ -4,6 +4,9 @@ from transformers import pipeline
 from googletrans import Translator
 from gtts import gTTS
 from tempfile import NamedTemporaryFile
+from streamlit_option_menu import option_menu
+import json
+import time
 
 def extract_transcript(video_id):
     try:
@@ -20,9 +23,9 @@ def enhance_transcript(transcript):
     enhanced_transcript = summarizer(transcript)[0]['summary_text']
     return enhanced_transcript
 
-def translate_to_hindi(text):
+def translate_to_hindi(text,dest):
     translator = Translator()
-    translated_text = translator.translate(text, src='en', dest='hi')
+    translated_text = translator.translate(text, src='en', dest=dest)
     return translated_text.text
 
 def convert_to_audio(text, lang='hi'):
@@ -31,103 +34,146 @@ def convert_to_audio(text, lang='hi'):
     tts.save(temp_file.name)
     return temp_file.name
 
-def main():
+def cool_title(title_text):
     st.markdown(
-        """
-        <style>
-            body {
-                background-image: url("https://mcdn.wallpapersafari.com/medium/29/56/ymaAeU.jpg");
-                background-size: cover;
-                font-family: Arial, sans-serif;
-            }
-            .title {
-                font-size: 36px;
-                font-weight: bold;
-                color: #ff4500; /* Orange color */
-                text-align: center;
-                padding-top: 50px;
-            }
-            .header {
-                font-size: 24px;
-                font-weight: bold;
-                color: #ff4500; /* Orange color */
-                text-align: center;
-                padding-top: 20px;
-                padding-bottom: 20px;
-            }
-            .input {
-                font-size: 18px;
-                color: #ffffff;
-                margin-bottom: 20px;
-            }
-            .button-container {
-                display: flex;
-                justify-content: center;
-            }
-            .button {
-                font-size: 18px;
-                color: #ffffff;
-                background-color: #008080;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            .button:hover {
-                background-color: #005555;
-            }
-            .success {
-                font-size: 18px;
-                color: #00ff00;
-            }
-            .error {
-                font-size: 18px;
-                color: #ff0000;
-            }
-            .markdown-text {
-                font-size: 16px;
-                color: #ffffff;
-            }
-        </style>
+        f"""
+        <div style="background-color:#f63366;padding:10px;border-radius:10px;font-family: 'Times New Roman', Times, serif;">
+        <h1 style="color:white;text-align:center;">{title_text}</h1>
+        </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    st.markdown("<div class='title'>Avinashi</div>", unsafe_allow_html=True)
-    st.subheader("Your Study App")
+def slider(images, slider_value):
+    image_placeholder = st.empty()
 
-    youtube_link = st.text_input("Enter YouTube Video ID:", value='', key='youtube_link')
+    while True:
+        if slider_value < len(images)-1:
+            slider_value += 1
+        else:
+            slider_value = 0
 
-    if st.button("Process"):
-        st.image(f"http://img.youtube.com/vi/{youtube_link}/0.jpg", use_column_width=True)
-        if youtube_link:
-            with st.spinner("Processing your request..."):
-                # Call function to extract transcript
-                transcript_text = extract_transcript(youtube_link)
-                if transcript_text:
-                    st.success("Transcript extracted successfully!")
+        image_placeholder.image(images[slider_value], use_column_width=True)
+        time.sleep(2)  # Change image every 2 seconds
+        image_placeholder.empty()
 
-                    # Add tabs
-                    tabs = st.tabs(["Summary", "Hindi"])
+def main():
+    cool_title("Avinashi")
+    st.header("Your Study App")
+    selected = option_menu(menu_title = "Menu",
+                options = ["English Notes","Hindi Notes","Tribute","Punjabi Notes","Marathi Notes"],
+                #icons = ["File text fill","File text fill"],
+                menu_icon = "Emoji sunglasses fill",
+                default_index = 2,
+                                orientation = "horizontal"
+                )
+    if selected == "Tribute":
+        images = [
+        "/content/Slider/01.jpg",
+        "/content/Slider/02.jpg",
+        "/content/Slider/03.jpg",
+        "/content/Slider/04.jpg",
+        "/content/Slider/05.jpg",
+        "/content/Slider/06.jpg",
+        "/content/Slider/07.jpg",
+    ]   
+        st.header("_Education is the best friend. An educated person is respected everywhere.Education beats the beauty and the youth._")
+        slider_value = st.slider("||जय माँ सरस्वती||", 0, 6, 0, 1)
+        slider(images, slider_value)
 
-                    # First tab - Summary
-                    with tabs[0]:
-                        st.markdown("<div class='header'>Summary Notes:</div>", unsafe_allow_html=True)
-                        # Generate summary
-                        transcript = enhance_transcript(transcript_text)
-                        st.markdown(f"<div class='markdown-text'>{transcript}</div>", unsafe_allow_html=True)
-                        # Convert to audio and play
-                        st.audio(convert_to_audio(transcript), format='audio/mp3')
+        
+        
 
-                    # Second tab - Hindi translation
-                    with tabs[1]:
-                        st.markdown("<div class='header'>Detailed Notes (in Hindi):</div>", unsafe_allow_html=True)
-                        # Translate to Hindi
-                        transcript_hindi = translate_to_hindi(transcript_text)
-                        st.markdown(f"<div class='markdown-text'>{transcript_hindi}</div>", unsafe_allow_html=True)
-                        # Convert to audio and play
-                        st.audio(convert_to_audio(transcript_hindi, lang='hi'), format='audio/mp3')
-                else:
-                    st.error("Failed to extract transcript. Please check the video link.")
+    else:
+        youtube_link = st.text_input("Enter YouTube Video ID:", value='', key='youtube_link')
+
+        if st.button("Process"):
+            st.image(f"http://img.youtube.com/vi/{youtube_link}/0.jpg", use_column_width=True)
+            if youtube_link:
+                with st.spinner("Processing your request..."):
+                    # Call function to extract transcript
+                    transcript = extract_transcript(youtube_link)
+
+
+                    if transcript:
+                        st.success("Transcript extracted successfully!")
+                        summary = enhance_transcript(transcript)
+                        translate = translate_to_hindi(transcript,"hi")
+                        translate_01 = translate_to_hindi(transcript,"pa")
+                        translate_02 = translate_to_hindi(transcript,"mr")
+                        st.divider()
+                        # First tab - Summary
+                        if selected == "English Notes":
+                            tabs = st.tabs(["Detailed Notes", "Summery Notes",])
+                            with tabs[0]:
+                                st.markdown("<div class='header'>Detailed Written Notes:</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='markdown-text'>{transcript}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Detailed Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(transcript), format='audio/mp3')
+                                st.divider()
+                            with tabs[1]:
+                                st.markdown("<div class='header'>Summary Written Notes:</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='markdown-text'>{summary}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Summary Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(summary), format='audio/mp3')
+                                st.divider()
+
+                        # Second tab - Hindi translation
+                        if selected == "Hindi Notes":
+                            tabs = st.tabs(["Detailed Notes", "Summery Notes",])
+                            with tabs[0]:
+                                st.markdown("<div class='header'>Detailed Notes:</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='markdown-text'>{translate}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Detailed Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(translate), format='audio/mp3')
+                                st.divider()
+                            with tabs[1]:
+                                st.markdown("<div class='header'>Summary Written Notes:</div>", unsafe_allow_html=True)
+                                transcript_hindi = translate_to_hindi(summary,"hi")
+                                st.markdown(f"<div class='markdown-text'>{transcript_hindi}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Summary Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(transcript_hindi, lang='hi'), format='audio/mp3')
+                                st.divider()
+                        if selected == "Punjabi Notes":
+                            tabs = st.tabs(["Detailed Notes", "Summery Notes",])
+                            with tabs[0]:
+                                st.markdown("<div class='header'>Detailed Notes:</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='markdown-text'>{translate_01}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Detailed Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(translate_01), format='audio/mp3')
+                                st.divider()
+                            with tabs[1]:
+                                st.markdown("<div class='header'>Summary Written Notes:</div>", unsafe_allow_html=True)
+                                transcript_panj = translate_to_hindi(summary,"pa")
+                                st.markdown(f"<div class='markdown-text'>{transcript_panj}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Summary Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(transcript_panj), format='audio/mp3')
+                                st.divider()
+                        if selected == "Marathi Notes":
+                            tabs = st.tabs(["Detailed Notes", "Summery Notes",])
+                            with tabs[0]:
+                                st.markdown("<div class='header'>Detailed Notes:</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='markdown-text'>{translate_02}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Detailed Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(translate_02), format='audio/mp3')
+                                st.divider()
+                            with tabs[1]:
+                                st.markdown("<div class='header'>Summary Written Notes:</div>", unsafe_allow_html=True)
+                                transcript_mra = translate_to_hindi(summary,"mr")
+                                st.markdown(f"<div class='markdown-text'>{transcript_mra}</div>", unsafe_allow_html=True)
+                                st.divider()
+                                st.markdown("<div class='header'>Summary Audio Notes:</div>", unsafe_allow_html=True)
+                                st.audio(convert_to_audio(transcript_mra), format='audio/mp3')
+                                st.divider()
+                    else:
+                        st.error("Failed to extract transcript. Please check the video link.")
 
 if __name__ == "__main__":
     main()
