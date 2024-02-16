@@ -69,13 +69,13 @@ def main():
                 )
     if selected == "Tribute":
         images = [
-        "/Slider/01.jpg",
-        "/Slider/02.jpg",
-        "/Slider/03.jpg",
-        "/Slider/04.jpg",
-        "/Slider/05.jpg",
-        "/Slider/06.jpg",
-        "/Slider/07.jpg",
+        "Slider/01.jpg",
+        "Slider/02.jpg",
+        "Slider/03.jpg",
+        "Slider/04.jpg",
+        "Slider/05.jpg",
+        "Slider/06.jpg",
+        "Slider/07.jpg",
     ]   
         st.header("_Education is the best friend. An educated person is respected everywhere.Education beats the beauty and the youth._")
         slider_value = st.slider("||जय माँ सरस्वती||", 0, 6, 0, 1)
